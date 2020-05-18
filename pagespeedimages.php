@@ -100,7 +100,7 @@ class PagespeedImagesPlugin extends Plugin
                 continue;
             }
 
-            $image->setAttribute('data-lazysrc', 'yolo');
+//            $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
 //            $image->setAttribute('src', '');
 
 
