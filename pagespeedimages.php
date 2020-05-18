@@ -88,8 +88,8 @@ class PagespeedImagesPlugin extends Plugin
             return '';
         }
 
-        $dom = new Document();
-        $dom->load($content);
+        $dom = new Document($content);
+//        $dom->load();
 
         $images = $dom->find('img');
         foreach ($images as $image) {
