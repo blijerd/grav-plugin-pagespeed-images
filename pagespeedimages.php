@@ -79,7 +79,7 @@ class PagespeedImagesPlugin extends Plugin
         $page = $this->grav['page'];
 
         $content = $this->manipulateDataAttributes($page->getRawContent());
-        $page->setRawContent($content);
+        $page->setRawContent("<h1>YOLO</h1>");
     }
 
     protected function manipulateDataAttributes(string $content)
