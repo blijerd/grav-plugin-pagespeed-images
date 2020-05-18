@@ -100,8 +100,8 @@ class PagespeedImagesPlugin extends Plugin
             $image->setAttribute('src', '');
         }
 
-return "<h1>YOlo</h1>";
-//        return $dom->html();
+//return "<h1>YOlo</h1>";
+        return $dom->html();
     }
 
 
