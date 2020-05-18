@@ -19,7 +19,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\Event\Event;
 use PHPHtmlParser\Dom;
-use WebPConvert\WebPConvert;
+//use WebPConvert\WebPConvert;
 
 /**
  * Adds a srcset-attribute to img-elements to allow for responsive images in Markdown
