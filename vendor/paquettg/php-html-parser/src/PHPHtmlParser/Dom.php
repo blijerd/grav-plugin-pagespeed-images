@@ -1,11 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 namespace PHPHtmlParser;
 
 use PHPHtmlParser\Dom\AbstractNode;
+use PHPHtmlParser\Dom\Collection;
 use PHPHtmlParser\Dom\HtmlNode;
 use PHPHtmlParser\Dom\TextNode;
+use PHPHtmlParser\Exceptions\ChildNotFoundException;
+use PHPHtmlParser\Exceptions\CircularException;
+use PHPHtmlParser\Exceptions\CurlException;
 use PHPHtmlParser\Exceptions\NotLoadedException;
+use PHPHtmlParser\Exceptions\ParentNotFoundException;
 use PHPHtmlParser\Exceptions\StrictException;
+use PHPHtmlParser\Exceptions\UnknownChildTypeException;
+use PHPHtmlParser\Exceptions\LogicalException;
 use stringEncode\Encode;
 
 /**
@@ -109,6 +116,8 @@ class Dom
      * Returns the inner html of the root node.
      *
      * @return string
+     * @throws ChildNotFoundException
+     * @throws UnknownChildTypeException
      */
     public function __toString(): string
     {
@@ -128,11 +137,13 @@ class Dom
 
     /**
      * Attempts to load the dom from any resource, string, file, or URL.
-     *
      * @param string $str
-     * @param array $options
+     * @param array  $options
      * @return Dom
-     * @chainable
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws CurlException
+     * @throws StrictException
      */
     public function load(string $str, array $options = []): Dom
     {
@@ -151,26 +162,34 @@ class Dom
 
     /**
      * Loads the dom from a document file/url
-     *
      * @param string $file
-     * @param array $options
+     * @param array  $options
      * @return Dom
-     * @chainable
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws StrictException
+     * @throws LogicalException
      */
     public function loadFromFile(string $file, array $options = []): Dom
     {
-        return $this->loadStr(file_get_contents($file), $options);
+        $content = file_get_contents($file);
+        if ($content === false) {
+            throw new LogicalException('file_get_contents failed and returned false when trying to read "'.$file.'".');
+        }
+        return $this->loadStr($content, $options);
     }
 
     /**
      * Use a curl interface implementation to attempt to load
      * the content from a url.
-     *
-     * @param string $url
-     * @param array $options
-     * @param CurlInterface $curl
+     * @param string                            $url
+     * @param array                             $options
+     * @param CurlInterface|null $curl
      * @return Dom
-     * @chainable
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws CurlException
+     * @throws StrictException
      */
     public function loadFromUrl(string $url, array $options = [], CurlInterface $curl = null): Dom
     {
@@ -178,7 +197,7 @@ class Dom
             // use the default curl interface
             $curl = new Curl;
         }
-        $content = $curl->get($url);
+        $content = $curl->get($url, $options);
 
         return $this->loadStr($content, $options);
     }
@@ -186,11 +205,12 @@ class Dom
     /**
      * Parsers the html of the given string. Used for load(), loadFromFile(),
      * and loadFromUrl().
-     *
      * @param string $str
-     * @param array $option
+     * @param array  $option
      * @return Dom
-     * @chainable
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws StrictException
      */
     public function loadStr(string $str, array $option = []): Dom
     {
@@ -228,23 +248,33 @@ class Dom
 
     /**
      * Find elements by css selector on the root node.
-     *
-     * @param string $selector
-     * @param int $nth
-     * @return mixed
+     * @param string   $selector
+     * @param int|null $nth
+     * @return mixed|Collection|null
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
      */
     public function find(string $selector, int $nth = null)
     {
         $this->isLoaded();
 
-        return $this->root->find($selector, $nth);
+        $depthFirstSearch = $this->options->get('depthFirstSearch');
+        if (is_bool($depthFirstSearch)) {
+            $result = $this->root->find($selector, $nth, $depthFirstSearch);
+        } else {
+            $result = $this->root->find($selector, $nth);
+        }
+
+        return $result;
     }
 
     /**
      * Find element by Id on the root node
-     *
      * @param int $id
-     * @return mixed
+     * @return bool|AbstractNode
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
+     * @throws ParentNotFoundException
      */
     public function findById(int $id)
     {
@@ -356,10 +386,11 @@ class Dom
 
     /**
      * Simple wrapper function that returns the first child.
-     *
-     * @return \PHPHtmlParser\Dom\AbstractNode
+     * @return AbstractNode
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
      */
-    public function firstChild(): \PHPHtmlParser\Dom\AbstractNode
+    public function firstChild(): AbstractNode
     {
         $this->isLoaded();
 
@@ -368,10 +399,11 @@ class Dom
 
     /**
      * Simple wrapper function that returns the last child.
-     *
-     * @return \PHPHtmlParser\Dom\AbstractNode
+     * @return AbstractNode
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
      */
-    public function lastChild(): \PHPHtmlParser\Dom\AbstractNode
+    public function lastChild(): AbstractNode
     {
         $this->isLoaded();
 
@@ -382,6 +414,7 @@ class Dom
      * Simple wrapper function that returns count of child elements
      *
      * @return int
+     * @throws NotLoadedException
      */
     public function countChildren(): int
     {
@@ -394,6 +427,7 @@ class Dom
      * Get array of children
      *
      * @return array
+     * @throws NotLoadedException
      */
     public function getChildren(): array
     {
@@ -406,6 +440,7 @@ class Dom
      * Check if node have children nodes
      *
      * @return bool
+     * @throws NotLoadedException
      */
     public function hasChildren(): bool
     {
@@ -417,9 +452,10 @@ class Dom
     /**
      * Simple wrapper function that returns an element by the
      * id.
-     *
-     * @param string $id
-     * @return \PHPHtmlParser\Dom\AbstractNode|null
+     * @param $id
+     * @return mixed|Collection|null
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
      */
     public function getElementById($id)
     {
@@ -431,9 +467,10 @@ class Dom
     /**
      * Simple wrapper function that returns all elements by
      * tag name.
-     *
      * @param string $name
-     * @return mixed
+     * @return mixed|Collection|null
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
      */
     public function getElementsByTag(string $name)
     {
@@ -445,9 +482,10 @@ class Dom
     /**
      * Simple wrapper function that returns all elements by
      * class name.
-     *
      * @param string $class
-     * @return mixed
+     * @return mixed|Collection|null
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
      */
     public function getElementsByClass(string $class)
     {
@@ -481,9 +519,23 @@ class Dom
             return $str;
         }
 
+        $is_gzip = 0 === mb_strpos($str, "\x1f" . "\x8b" . "\x08", 0, "US-ASCII");
+        if ($is_gzip) {
+            $str = gzdecode($str);
+            if ($str === false) {
+                throw new LogicalException('gzdecode returned false. Error when trying to decode the string.');
+            }
+        }
+
         // remove white space before closing tags
         $str = mb_eregi_replace("'\s+>", "'>", $str);
+        if ($str === false) {
+            throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to clean single quotes.');
+        }
         $str = mb_eregi_replace('"\s+>', '">', $str);
+        if ($str === false) {
+            throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to clean double quotes.');
+        }
 
         // clean out the \n\r
         $replace = ' ';
@@ -491,46 +543,84 @@ class Dom
             $replace = '&#10;';
         }
         $str = str_replace(["\r\n", "\r", "\n"], $replace, $str);
+        if ($str === false) {
+            throw new LogicalException('str_replace returned false instead of a string. Error when attempting to clean input string.');
+        }
 
         // strip the doctype
         $str = mb_eregi_replace("<!doctype(.*?)>", '', $str);
+        if ($str === false) {
+            throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to strip the doctype.');
+        }
 
         // strip out comments
         $str = mb_eregi_replace("<!--(.*?)-->", '', $str);
+        if ($str === false) {
+            throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to strip comments.');
+        }
 
         // strip out cdata
         $str = mb_eregi_replace("<!\[CDATA\[(.*?)\]\]>", '', $str);
+        if ($str === false) {
+            throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to strip out cdata.');
+        }
 
         // strip out <script> tags
-        if ($this->options->get('removeScripts') == true) {
+        if ($this->options->get('removeScripts')) {
             $str = mb_eregi_replace("<\s*script[^>]*[^/]>(.*?)<\s*/\s*script\s*>", '', $str);
+            if ($str === false) {
+                throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to remove scripts 1.');
+            }
             $str = mb_eregi_replace("<\s*script\s*>(.*?)<\s*/\s*script\s*>", '', $str);
+            if ($str === false) {
+                throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to remove scripts 2.');
+            }
         }
 
         // strip out <style> tags
-        if ($this->options->get('removeStyles') == true) {
+        if ($this->options->get('removeStyles')) {
             $str = mb_eregi_replace("<\s*style[^>]*[^/]>(.*?)<\s*/\s*style\s*>", '', $str);
+            if ($str === false) {
+                throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to strip out style tags 1.');
+            }
             $str = mb_eregi_replace("<\s*style\s*>(.*?)<\s*/\s*style\s*>", '', $str);
+            if ($str === false) {
+                throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to strip out style tags 2.');
+            }
         }
 
         // strip out server side scripts
-        if ($this->options->get('serverSideScriptis') == true){
+        if ($this->options->get('serverSideScripts')) {
             $str = mb_eregi_replace("(<\?)(.*?)(\?>)", '', $str);
+            if ($str === false) {
+                throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to strip out service side scripts.');
+            }
         }
 
         // strip smarty scripts
-        $str = mb_eregi_replace("(\{\w)(.*?)(\})", '', $str);
+        if ($this->options->get('removeSmartyScripts')) {
+            $str = mb_eregi_replace("(\{\w)(.*?)(\})", '', $str);
+            if ($str === false) {
+                throw new LogicalException('mb_eregi_replace returned false instead of a string. Error when attempting to remove smarty scripts.');
+            }
+        }
 
         return $str;
     }
 
     /**
      * Attempts to parse the html in content.
+     *
+     * @return void
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws StrictException
      */
     protected function parse(): void
     {
         // add the root node
         $this->root = new HtmlNode('root');
+        $this->root->setHtmlSpecialCharsDecode($this->options->htmlSpecialCharsDecode);
         $activeNode = $this->root;
         while ( ! is_null($activeNode)) {
             $str = $this->content->copyUntil('<');
@@ -578,6 +668,7 @@ class Dom
             ) {
                 // we found text we care about
                 $textNode = new TextNode($str, $this->options->removeDoubleSpace);
+                $textNode->setHtmlSpecialCharsDecode($this->options->htmlSpecialCharsDecode);
                 $activeNode->addChild($textNode);
             }
         }
@@ -612,7 +703,7 @@ class Dom
 
             // check if this closing tag counts
             $tag = strtolower($tag);
-            if (in_array($tag, $this->selfClosing)) {
+            if (in_array($tag, $this->selfClosing, true)) {
                 $return['status'] = true;
 
                 return $return;
@@ -626,7 +717,13 @@ class Dom
         }
 
         $tag  = strtolower($this->content->copyByToken('slash', true));
+        if (trim($tag) == '')
+        {
+            // no tag found, invalid < found
+            return $return;
+        }
         $node = new HtmlNode($tag);
+        $node->setHtmlSpecialCharsDecode($this->options->htmlSpecialCharsDecode);
 
         // attributes
         while ($this->content->char() != '>' &&
@@ -656,7 +753,7 @@ class Dom
                     case '"':
                         $attr['doubleQuote'] = true;
                         $this->content->fastForward(1);
-                        $string = $this->content->copyUntil('"', true, true);
+                        $string = $this->content->copyUntil('"', true);
                         do {
                             $moreString = $this->content->copyUntilUnless('"', '=>');
                             $string .= $moreString;
@@ -668,7 +765,7 @@ class Dom
                     case "'":
                         $attr['doubleQuote'] = false;
                         $this->content->fastForward(1);
-                        $string = $this->content->copyUntil("'", true, true);
+                        $string = $this->content->copyUntil("'", true);
                         do {
                             $moreString = $this->content->copyUntilUnless("'", '=>');
                             $string .= $moreString;
@@ -701,11 +798,12 @@ class Dom
         }
 
         $this->content->skipByToken('blank');
+        $tag = strtolower($tag);
         if ($this->content->char() == '/') {
             // self closing tag
             $node->getTag()->selfClosing();
             $this->content->fastForward(1);
-        } elseif (in_array($tag, $this->selfClosing)) {
+        } elseif (in_array($tag, $this->selfClosing, true)) {
 
             // Should be a self closing tag, check if we are strict
             if ($this->options->strict) {
@@ -717,7 +815,7 @@ class Dom
             $node->getTag()->selfClosing();
 
             // Should this tag use a trailing slash?
-            if(in_array($tag, $this->noSlash))
+            if(in_array($tag, $this->noSlash, true))
             {
                 $node->getTag()->noTrailingSlash();
             }
@@ -736,6 +834,7 @@ class Dom
      * Attempts to detect the charset that the html was sent in.
      *
      * @return bool
+     * @throws ChildNotFoundException
      */
     protected function detectCharset(): bool
     {
@@ -744,14 +843,16 @@ class Dom
         $encode->from($this->defaultCharset);
         $encode->to($this->defaultCharset);
 
-        if ( ! is_null($this->options->enforceEncoding)) {
+        $enforceEncoding = $this->options->enforceEncoding;
+        if ( ! is_null($enforceEncoding)) {
             //  they want to enforce the given encoding
-            $encode->from($this->options->enforceEncoding);
-            $encode->to($this->options->enforceEncoding);
+            $encode->from($enforceEncoding);
+            $encode->to($enforceEncoding);
 
             return false;
         }
 
+        /** @var AbstractNode $meta */
         $meta = $this->root->find('meta[http-equiv=Content-Type]', 0);
         if (is_null($meta)) {
             // could not find meta tag
@@ -759,8 +860,8 @@ class Dom
 
             return false;
         }
-        $content = $meta->content;
-        if (empty($content)) {
+        $content = $meta->getAttribute('content');
+        if (is_null($content)) {
             // could not find content
             $this->root->propagateEncoding($encode);
 

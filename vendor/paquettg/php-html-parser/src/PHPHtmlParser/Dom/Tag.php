@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 namespace PHPHtmlParser\Dom;
 
-use PHPHtmlParser\Dom;
 use stringEncode\Encode;
 
 /**
@@ -51,6 +50,11 @@ class Tag
      * @var mixed
      */
     protected $encode = null;
+
+    /**
+     * @var bool
+     */
+    private $HtmlSpecialCharsDecode = false;
 
     /**
      * Sets up the tag with a name.
@@ -143,6 +147,15 @@ class Tag
     }
 
     /**
+     * @param bool $htmlSpecialCharsDecode
+     * @return void
+     */
+    public function setHtmlSpecialCharsDecode($htmlSpecialCharsDecode = false): void
+    {
+        $this->HtmlSpecialCharsDecode = $htmlSpecialCharsDecode;
+    }
+
+    /**
      * Sets the noise for this tag (if any)
      *
      * @param string $noise
@@ -173,6 +186,9 @@ class Tag
                 'doubleQuote' => true,
             ];
         }
+        if ($this->HtmlSpecialCharsDecode) {
+            $value['value'] = htmlspecialchars_decode($value['value']);
+        }
         $this->attr[$key] = $value;
 
         return $this;
@@ -186,7 +202,6 @@ class Tag
      */
     public function setStyleAttributeValue($attr_key, $attr_value): void
     {
-
         $style_array = $this->getStyleAttributeArray();
         $style_array[$attr_key] = $attr_value;
 
@@ -268,7 +283,7 @@ class Tag
     public function getAttributes()
     {
         $return = [];
-        foreach ($this->attr as $attr => $info) {
+        foreach (array_keys($this->attr) as $attr) {
             $return[$attr] = $this->getAttribute($attr);
         }
 
@@ -279,12 +294,13 @@ class Tag
      * Returns an attribute by the key
      *
      * @param string $key
-     * @return mixed
+     * @return array
      */
-    public function getAttribute(string $key)
+    public function getAttribute(string $key):array
     {
+        $key = strtolower($key);
         if ( ! isset($this->attr[$key])) {
-            return null;
+            return ['value' => null, 'doubleQuote' => true];
         }
         $value = $this->attr[$key]['value'];
         if (is_string($value) && ! is_null($this->encode)) {
@@ -316,7 +332,7 @@ class Tag
         $return = '<'.$this->name;
 
         // add the attributes
-        foreach ($this->attr as $key => $info) {
+        foreach (array_keys($this->attr) as $key) {
             $info = $this->getAttribute($key);
             $val  = $info['value'];
             if (is_null($val)) {

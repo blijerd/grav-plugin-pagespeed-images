@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace PHPHtmlParser\Dom;
 
 use PHPHtmlParser\Exceptions\CircularException;
@@ -11,24 +11,27 @@ use PHPHtmlParser\Finder;
 
 /**
  * Dom node object.
- *
- * @property string outerhtml
- * @property string innerhtml
- * @property string text
- * @property int prev
- * @property int next
- * @property \PHPHtmlParser\Dom\Tag tag
- * @property InnerNode parent
+ * @property string    $outerhtml
+ * @property string    $innerhtml
+ * @property string    $text
+ * @property int       $prev
+ * @property int       $next
+ * @property Tag       $tag
+ * @property InnerNode $parent
  */
 abstract class AbstractNode
 {
+    /**
+     * @var int
+     */
     private static $count = 0;
+
     /**
      * Contains the tag name/type
      *
-     * @var \PHPHtmlParser\Dom\Tag
+     * @var ?Tag
      */
-    protected $tag;
+    protected $tag = null;
 
     /**
      * Contains a list of attributes on this tag.
@@ -40,7 +43,7 @@ abstract class AbstractNode
     /**
      * Contains the parent Node.
      *
-     * @var InnerNode
+     * @var ?InnerNode
      */
     protected $parent = null;
 
@@ -64,6 +67,11 @@ abstract class AbstractNode
      * @var array
      */
     protected $children = [];
+
+    /**
+     * @var bool
+     */
+    protected $htmlSpecialCharsDecode = false;
 
     /**
      * Creates a unique id for this node.
@@ -108,8 +116,8 @@ abstract class AbstractNode
     public function __destruct()
     {
         $this->tag      = null;
-        $this->attr     = [];
         $this->parent   = null;
+        $this->attr     = [];
         $this->children = [];
     }
 
@@ -122,6 +130,16 @@ abstract class AbstractNode
     {
         return $this->outerHtml();
     }
+
+    /**
+     * @param bool $htmlSpecialCharsDecode
+     * @return void
+     */
+    public function setHtmlSpecialCharsDecode($htmlSpecialCharsDecode = false): void
+    {
+        $this->htmlSpecialCharsDecode = $htmlSpecialCharsDecode;
+    }
+
 
     /**
      * Reset node counter
@@ -155,11 +173,10 @@ abstract class AbstractNode
 
     /**
      * Sets the parent node.
-     *
      * @param InnerNode $parent
      * @return AbstractNode
+     * @throws ChildNotFoundException
      * @throws CircularException
-     * @chainable
      */
     public function setParent(InnerNode $parent): AbstractNode
     {
@@ -260,19 +277,21 @@ abstract class AbstractNode
         catch (ParentNotFoundException $e)
         {
             // no parent, no next sibling
+            unset($e);
             return false;
         }
         catch (ChildNotFoundException $e)
         {
             // no sibling found
+            unset($e);
             return false;
         }
     }
 
     /**
      * Attempts to get the next sibling.
-     *
      * @return AbstractNode
+     * @throws ChildNotFoundException
      * @throws ParentNotFoundException
      */
     public function nextSibling(): AbstractNode
@@ -285,9 +304,9 @@ abstract class AbstractNode
     }
 
     /**
-     * Attempts to get the previous sibling
-     *
+     * Attempts to get the previous sibling.
      * @return AbstractNode
+     * @throws ChildNotFoundException
      * @throws ParentNotFoundException
      */
     public function previousSibling(): AbstractNode
@@ -330,16 +349,14 @@ abstract class AbstractNode
      * on the tag of this node.
      *
      * @param string $key
-     * @return mixed
+     * @return string|null
      */
-    public function getAttribute(string $key)
+    public function getAttribute(string $key): ?string
     {
         $attribute = $this->tag->getAttribute($key);
-        if ( ! is_null($attribute)) {
-            $attribute = $attribute['value'];
-        }
+        $attributeValue = $attribute['value'];
 
-        return $attribute;
+        return $attributeValue;
     }
 
     /**
@@ -359,7 +376,7 @@ abstract class AbstractNode
      * on the tag of this node.
      *
      * @param string $key
-     * @param string|null $value
+     * @param string|array $value
      * @return AbstractNode
      * @chainable
      */
@@ -426,14 +443,16 @@ abstract class AbstractNode
 
     /**
      * Find elements by css selector
-     *
-     * @param string $selector
-     * @param int $nth
-     * @return mixed
+     * @param string   $selector
+     * @param int|null $nth
+     * @param bool     $depthFirst
+     * @return mixed|Collection|null
+     * @throws ChildNotFoundException
      */
-    public function find(string $selector, int $nth = null)
+    public function find(string $selector, int $nth = null, bool $depthFirst = false)
     {
         $selector = new Selector($selector, new SelectorParser());
+        $selector->setDepthFirstFind($depthFirst);
         $nodes    = $selector->find($this);
 
         if ( ! is_null($nth)) {
@@ -450,9 +469,10 @@ abstract class AbstractNode
 
     /**
      * Find node by id
-     *
      * @param int $id
      * @return bool|AbstractNode
+     * @throws ChildNotFoundException
+     * @throws ParentNotFoundException
      */
     public function findById(int $id)
     {

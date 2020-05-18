@@ -1,8 +1,12 @@
-<?php
+<?php 
+
+declare(strict_types=1);
+
 namespace PHPHtmlParser\Dom;
 
 use PHPHtmlParser\Exceptions\ChildNotFoundException;
 use PHPHtmlParser\Exceptions\CircularException;
+use PHPHtmlParser\Exceptions\LogicalException;
 use stringEncode\Encode;
 
 /**
@@ -25,6 +29,7 @@ abstract class InnerNode extends ArrayNode
      * to all its children.
      *
      * @param Encode $encode
+     *
      * @return void
      */
     public function propagateEncoding(Encode $encode): void
@@ -32,7 +37,7 @@ abstract class InnerNode extends ArrayNode
         $this->encode = $encode;
         $this->tag->setEncoding($encode);
         // check children
-        foreach ($this->children as $id => $child) {
+        foreach ($this->children as $child) {
             /** @var AbstractNode $node */
             $node = $child['node'];
             $node->propagateEncoding($encode);
@@ -46,19 +51,20 @@ abstract class InnerNode extends ArrayNode
      */
     public function hasChildren(): bool
     {
-        return ! empty($this->children);
+        return !empty($this->children);
     }
 
     /**
      * Returns the child by id.
      *
      * @param int $id
+     *
      * @return AbstractNode
      * @throws ChildNotFoundException
      */
     public function getChild(int $id): AbstractNode
     {
-        if ( ! isset($this->children[$id])) {
+        if (!isset($this->children[$id])) {
             throw new ChildNotFoundException("Child '$id' not found in this node.");
         }
 
@@ -73,14 +79,20 @@ abstract class InnerNode extends ArrayNode
     public function getChildren(): array
     {
         $nodes = [];
+        $childrenIds = [];
         try {
             $child = $this->firstChild();
             do {
                 $nodes[] = $child;
-                $child   = $this->nextChild($child->id());
-            } while ( ! is_null($child));
+                $childrenIds[] = $child->id;
+                $child = $this->nextChild($child->id());
+                if (in_array($child->id, $childrenIds, true)) {
+                    throw new CircularException('Circular sibling referance found. Child with id '.$child->id().' found twice.');
+                }
+            } while (true);
         } catch (ChildNotFoundException $e) {
             // we are done looking for children
+            unset($e);
         }
 
         return $nodes;
@@ -99,10 +111,10 @@ abstract class InnerNode extends ArrayNode
     /**
      * Adds a child node to this node and returns the id of the child for this
      * parent.
-     *
      * @param AbstractNode $child
-     * @param Int $before
+     * @param int          $before
      * @return bool
+     * @throws ChildNotFoundException
      * @throws CircularException
      */
     public function addChild(AbstractNode $child, int $before = -1): bool
@@ -119,51 +131,52 @@ abstract class InnerNode extends ArrayNode
             throw new CircularException('Can not set itself as a child.');
         }
 
-		$next = null;
+        $next = null;
 
         if ($this->hasChildren()) {
-			if (isset($this->children[$child->id()])) {
-				// we already have this child
-				return false;
-			}
+            if (isset($this->children[$child->id()])) {
+                // we already have this child
+                return false;
+            }
 
-			if ($before >= 0) {
-				if (!isset($this->children[$before])) {
-					return false;
-				}
+            if ($before >= 0) {
+                if (!isset($this->children[$before])) {
+                    return false;
+                }
 
-				$key = $this->children[$before]['prev'];
+                $key = $this->children[$before]['prev'];
 
-				if($key){
-					$this->children[$key]['next'] = $child->id();
-				}
+                if ($key) {
+                    $this->children[$key]['next'] = $child->id();
+                }
 
-				$this->children[$before]['prev'] = $child->id();
-				$next = $before;
-			} else {
-				$sibling = $this->lastChild();
-				$key = $sibling->id();
+                $this->children[$before]['prev'] = $child->id();
+                $next = $before;
+            } else {
+                $sibling = $this->lastChild();
+                $key = $sibling->id();
 
-				$this->children[$key]['next'] = $child->id();
-			}
+                $this->children[$key]['next'] = $child->id();
+            }
         }
 
-		$keys = array_keys($this->children);
+        $keys = array_keys($this->children);
 
-		$insert = [
-			'node' => $child,
-			'next' => $next,
-			'prev' => $key,
-		];
+        $insert = [
+          'node' => $child,
+          'next' => $next,
+          'prev' => $key,
+        ];
 
-		$index = $key ? (array_search($key, $keys, true) + 1) : 0;
-		array_splice($keys, $index, 0, $child->id());
+        $index = $key ? (int) (array_search($key, $keys, true) + 1) : 0;
+        array_splice($keys, $index, 0, (string) $child->id());
 
-		$children = array_values($this->children);
-		array_splice($children, $index, 0, [$insert]);
+        $children = array_values($this->children);
+        array_splice($children, $index, 0, [$insert]);
 
-		// add the child
-		$this->children = array_combine($keys, $children);
+        // add the child
+        $combination = array_combine($keys, $children);
+        $this->children = $combination;
 
         // tell child I am the new parent
         $child->setParent($this);
@@ -174,61 +187,64 @@ abstract class InnerNode extends ArrayNode
         return true;
     }
 
-	/**
-	 * Insert element before child with provided id
-	 *
-	 * @param AbstractNode $child
-	 * @param int $id
-	 * @return bool
-	 */
-	public function insertBefore(AbstractNode $child, int $id): bool
-	{
-		return $this->addChild($child, $id);
-	}
+    /**
+     * Insert element before child with provided id
+     * @param AbstractNode $child
+     * @param int          $id
+     * @return bool
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     */
+    public function insertBefore(AbstractNode $child, int $id): bool
+    {
+        return $this->addChild($child, $id);
+    }
 
-	/**
-	 * Insert element before after with provided id
-	 *
-	 * @param AbstractNode $child
-	 * @param int $id
-	 * @return bool
-	 */
-	public function insertAfter(AbstractNode $child, int $id): bool
-	{
-		if (!isset($this->children[$id])) {
-			return false;
-		}
+    /**
+     * Insert element before after with provided id
+     * @param AbstractNode $child
+     * @param int          $id
+     * @return bool
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     */
+    public function insertAfter(AbstractNode $child, int $id): bool
+    {
+        if (!isset($this->children[$id])) {
+            return false;
+        }
 
-		if ($this->children[$id]['next']) {
-			return $this->addChild($child, $this->children[$id]['next']);
-		}
+        if (isset($this->children[$id]['next']) && is_int($this->children[$id]['next'])) {
+            return $this->addChild($child, (int) $this->children[$id]['next']);
+        }
 
-		// clear cache
-		$this->clear();
+        // clear cache
+        $this->clear();
 
-		return $this->addChild($child);
-	}
+        return $this->addChild($child);
+    }
 
     /**
      * Removes the child by id.
      *
      * @param int $id
+     *
      * @return InnerNode
      * @chainable
      */
     public function removeChild(int $id): InnerNode
     {
-        if ( ! isset($this->children[$id])) {
+        if (!isset($this->children[$id])) {
             return $this;
         }
 
         // handle moving next and previous assignments.
         $next = $this->children[$id]['next'];
         $prev = $this->children[$id]['prev'];
-        if ( ! is_null($next)) {
+        if (!is_null($next)) {
             $this->children[$next]['prev'] = $prev;
         }
-        if ( ! is_null($prev)) {
+        if (!is_null($prev)) {
             $this->children[$prev]['next'] = $next;
         }
 
@@ -245,11 +261,13 @@ abstract class InnerNode extends ArrayNode
      * Check if has next Child
      *
      * @param int $id
+     *
      * @return mixed
+     * @throws ChildNotFoundException
      */
     public function hasNextChild(int $id)
     {
-        $child= $this->getChild($id);
+        $child = $this->getChild($id);
         return $this->children[$child->id()]['next'];
     }
 
@@ -257,16 +275,17 @@ abstract class InnerNode extends ArrayNode
      * Attempts to get the next child.
      *
      * @param int $id
+     *
      * @return AbstractNode
-     * @uses $this->getChild()
      * @throws ChildNotFoundException
+     * @uses $this->getChild()
      */
     public function nextChild(int $id): AbstractNode
     {
         $child = $this->getChild($id);
-        $next  = $this->children[$child->id()]['next'];
-        if (is_null($next)) {
-            throw new ChildNotFoundException("Child '$id' next not found in this node.");
+        $next = $this->children[$child->id()]['next'];
+        if (is_null($next) || !is_int($next)) {
+            throw new ChildNotFoundException("Child '$id' next sibling not found in this node.");
         }
 
         return $this->getChild($next);
@@ -276,15 +295,16 @@ abstract class InnerNode extends ArrayNode
      * Attempts to get the previous child.
      *
      * @param int $id
+     *
      * @return AbstractNode
-     * @uses $this->getChild()
      * @throws ChildNotFoundException
+     * @uses $this->getChild()
      */
     public function previousChild(int $id): AbstractNode
     {
         $child = $this->getchild($id);
-        $next  = $this->children[$child->id()]['prev'];
-        if (is_null($next)) {
+        $next = $this->children[$child->id()]['prev'];
+        if (is_null($next) || !is_int($next)) {
             throw new ChildNotFoundException("Child '$id' previous not found in this node.");
         }
 
@@ -296,11 +316,12 @@ abstract class InnerNode extends ArrayNode
      * current node.
      *
      * @param int $id
+     *
      * @return bool
      */
     public function isChild(int $id): bool
     {
-        foreach ($this->children as $childId => $child) {
+        foreach(array_keys($this->children) as $childId) {
             if ($id == $childId) {
                 return true;
             }
@@ -313,29 +334,30 @@ abstract class InnerNode extends ArrayNode
      * Removes the child with id $childId and replace it with the new child
      * $newChild.
      *
-     * @param int $childId
+     * @param int          $childId
      * @param AbstractNode $newChild
-     * @throws ChildNotFoundException
+     *
      * @return void
      */
     public function replaceChild(int $childId, AbstractNode $newChild): void
     {
         $oldChild = $this->children[$childId];
 
-        $newChild->prev = $oldChild['prev'];
-        $newChild->next = $oldChild['next'];
+        $newChild->prev = (int) $oldChild['prev'];
+        $newChild->next = (int) $oldChild['next'];
 
         $keys = array_keys($this->children);
         $index = array_search($childId, $keys, true);
         $keys[$index] = $newChild->id();
-        $this->children = array_combine($keys, $this->children);
-        $this->children[$newChild->id()] = array(
-            'prev' => $oldChild['prev'],
-            'node' => $newChild,
-            'next' => $oldChild['next']
-        );
+        $combination = array_combine($keys, $this->children);
+        $this->children = $combination;
+        $this->children[$newChild->id()] = [
+          'prev' => $oldChild['prev'],
+          'node' => $newChild,
+          'next' => $oldChild['next']
+        ];
 
-        // chnge previous child id to new child
+        // change previous child id to new child
         if ($oldChild['prev'] && isset($this->children[$newChild->prev])) {
             $this->children[$oldChild['prev']]['next'] = $newChild->id();
         }
@@ -344,7 +366,7 @@ abstract class InnerNode extends ArrayNode
         if ($oldChild['next'] && isset($this->children[$newChild->next])) {
             $this->children[$oldChild['next']]['prev'] = $newChild->id();
         }
-        
+
         // remove old child
         unset($this->children[$childId]);
 
@@ -356,8 +378,8 @@ abstract class InnerNode extends ArrayNode
      * Shortcut to return the first child.
      *
      * @return AbstractNode
-     * @uses $this->getChild()
      * @throws ChildNotFoundException
+     * @uses $this->getChild()
      */
     public function firstChild(): AbstractNode
     {
@@ -367,7 +389,7 @@ abstract class InnerNode extends ArrayNode
         }
 
         reset($this->children);
-        $key = (int) key($this->children);
+        $key = (int)key($this->children);
 
         return $this->getChild($key);
     }
@@ -376,8 +398,8 @@ abstract class InnerNode extends ArrayNode
      * Attempts to get the last child.
      *
      * @return AbstractNode
-     * @uses $this->getChild()
      * @throws ChildNotFoundException
+     * @uses $this->getChild()
      */
     public function lastChild(): AbstractNode
     {
@@ -389,6 +411,10 @@ abstract class InnerNode extends ArrayNode
         end($this->children);
         $key = key($this->children);
 
+        if (!is_int($key)) {
+            throw new LogicalException("Children array contain child with a key that is not an int.");
+        }
+
         return $this->getChild($key);
     }
 
@@ -397,6 +423,7 @@ abstract class InnerNode extends ArrayNode
      * current node.
      *
      * @param int $id
+     *
      * @return bool
      */
     public function isDescendant(int $id): bool
@@ -405,12 +432,12 @@ abstract class InnerNode extends ArrayNode
             return true;
         }
 
-        foreach ($this->children as $childId => $child) {
+        foreach ($this->children as $child) {
             /** @var InnerNode $node */
             $node = $child['node'];
-            if ($node instanceof InnerNode &&
-                $node->hasChildren() &&
-                $node->isDescendant($id)
+            if ($node instanceof InnerNode
+              && $node->hasChildren()
+              && $node->isDescendant($id)
             ) {
                 return true;
             }
@@ -421,21 +448,21 @@ abstract class InnerNode extends ArrayNode
 
     /**
      * Sets the parent node.
-     *
      * @param InnerNode $parent
      * @return AbstractNode
+     * @throws ChildNotFoundException
      * @throws CircularException
-     * @chainable
      */
     public function setParent(InnerNode $parent): AbstractNode
     {
         // check integrity
         if ($this->isDescendant($parent->id())) {
-            throw new CircularException('Can not add descendant "'.$parent->id().'" as my parent.');
+            throw new CircularException('Can not add descendant "'
+              . $parent->id() . '" as my parent.');
         }
 
-		// clear cache
-		$this->clear();
+        // clear cache
+        $this->clear();
 
         return parent::setParent($parent);
     }

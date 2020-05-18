@@ -1,18 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 namespace PHPHtmlParser;
 
 /**
  * Class Options
  *
  * @package PHPHtmlParser
- * @property bool whitespaceTextNode
- * @property bool strict
- * @property string|null enforceEncoding
- * @property bool cleanupInput
- * @property bool removeScripts
- * @property bool removeStyles
- * @property bool preserveLineBreaks
- * @property bool removeDoubleSpace
+ * @property bool $whitespaceTextNode
+ * @property bool $strict
+ * @property string|null $enforceEncoding
+ * @property bool $cleanupInput
+ * @property bool $removeScripts
+ * @property bool $removeStyles
+ * @property bool $preserveLineBreaks
+ * @property bool $removeDoubleSpace
+ * @property bool $removeSmartyScripts
+ * @property bool $depthFirstSearch
+ * @property bool $htmlSpecialCharsDecode
  */
 class Options
 {
@@ -20,23 +23,26 @@ class Options
     /**
      * The default options array
      *
-     * @param array
+     * @var array
      */
     protected $defaults = [
-        'whitespaceTextNode' => true,
-        'strict'             => false,
-        'enforceEncoding'    => null,
-        'cleanupInput'       => true,
-        'removeScripts'      => true,
-        'removeStyles'       => true,
-        'preserveLineBreaks' => false,
-        'removeDoubleSpace'  => true,
+        'whitespaceTextNode'     => true,
+        'strict'                 => false,
+        'enforceEncoding'        => null,
+        'cleanupInput'           => true,
+        'removeScripts'          => true,
+        'removeStyles'           => true,
+        'preserveLineBreaks'     => false,
+        'removeDoubleSpace'      => true,
+        'removeSmartyScripts'    => true,
+        'depthFirstSearch'       => false,
+        'htmlSpecialCharsDecode' => false,
     ];
 
     /**
      * The list of all current options set.
      *
-     * @param array
+     * @var array
      */
     protected $options = [];
 
@@ -80,7 +86,7 @@ class Options
      * Gets the value associated to the key, or null if the key is not
      * found.
      *
-     * @param string
+     * @param string $key
      * @return mixed
      */
     public function get(string $key)

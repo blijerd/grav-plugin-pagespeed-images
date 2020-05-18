@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace PHPHtmlParser\Dom;
 
 use PHPHtmlParser\Exceptions\UnknownChildTypeException;
@@ -15,21 +15,21 @@ class HtmlNode extends InnerNode
     /**
      * Remembers what the innerHtml was if it was scanned previously.
      *
-     * @var string
+     * @var ?string
      */
     protected $innerHtml = null;
 
     /**
      * Remembers what the outerHtml was if it was scanned previously.
      *
-     * @var string
+     * @var ?string
      */
     protected $outerHtml = null;
 
     /**
      * Remembers what the text was if it was scanned previously.
      *
-     * @var string
+     * @var ?string
      */
     protected $text = null;
 
@@ -37,7 +37,7 @@ class HtmlNode extends InnerNode
      * Remembers what the text was when we looked into all our
      * children nodes.
      *
-     * @var string
+     * @var ?string
      */
     protected $textWithChildren = null;
 
@@ -56,9 +56,19 @@ class HtmlNode extends InnerNode
     }
 
     /**
+     * @param bool $htmlSpecialCharsDecode
+     * @return void
+     */
+    public function setHtmlSpecialCharsDecode($htmlSpecialCharsDecode = false): void
+    {
+        parent::setHtmlSpecialCharsDecode($htmlSpecialCharsDecode);
+        $this->tag->setHtmlSpecialCharsDecode($htmlSpecialCharsDecode);
+    }
+
+    /**
      * Gets the inner html of this node.
-     *
      * @return string
+     * @throws ChildNotFoundException
      * @throws UnknownChildTypeException
      */
     public function innerHtml(): string
@@ -90,6 +100,7 @@ class HtmlNode extends InnerNode
                 $child = $this->nextChild($child->id());
             } catch (ChildNotFoundException $e) {
                 // no more children
+                unset($e);
                 $child = null;
             }
         }
@@ -103,8 +114,9 @@ class HtmlNode extends InnerNode
     /**
      * Gets the html of this node, including it's own
      * tag.
-     *
      * @return string
+     * @throws ChildNotFoundException
+     * @throws UnknownChildTypeException
      */
     public function outerHtml(): string
     {
@@ -190,7 +202,7 @@ class HtmlNode extends InnerNode
         $this->text      = null;
         $this->textWithChildren = null;
 
-        if (is_null($this->parent) === false) {
+        if (!is_null($this->parent)) {
             $this->parent->clear();
         }
     }

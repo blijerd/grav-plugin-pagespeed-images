@@ -1,8 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace PHPHtmlParser\Selector;
 
 /**
- * This is the parser for the selctor.
+ * This is the parser for the selector.
  *
  * 
  */
@@ -14,12 +17,14 @@ class Parser implements ParserInterface
      *
      * @var string
      */
-    protected $pattern = "/([\w\-:\*>]*)(?:\#([\w\-]+)|\.([\w\-]+))?(?:\[@?(!?[\w\-:]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
+    protected $pattern = "/([\w\-:\*>]*)(?:\#([\w\-]+)|\.([\w\.\-]+))?(?:\[@?(!?[\w\-:]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
 
     /**
      * Parses the selector string
      *
      * @param string $selector
+     *
+     * @return array
      */
     public function parseSelectorString(string $selector): array
     {
@@ -53,7 +58,7 @@ class Parser implements ParserInterface
             // check for class selector
             if ( ! empty($match[3])) {
                 $key   = 'class';
-                $value = $match[3];
+                $value = explode('.', $match[3]);
             }
 
             // and final attribute selector
@@ -65,10 +70,27 @@ class Parser implements ParserInterface
             }
             if ( ! empty($match[6])) {
                 $value = $match[6];
+                if (strpos($value, '][') !== false) {
+                    // we have multiple type selectors
+                    $keys = [];
+                    $keys[] = $key;
+                    $key = $keys;
+                    $parts = explode('][', $value);
+                    $value = [];
+                    foreach ($parts as $part) {
+                        if (strpos($part, '=') !== false) {
+                            list($first, $second) = explode('=', $part);
+                            $key[] = $first;
+                            $value[] = $second;
+                        } else {
+                            $value[] = $part;
+                        }
+                    }
+                }
             }
 
             // check for elements that do not have a specified attribute
-            if (isset($key[0]) && $key[0] == '!') {
+            if (is_string($key) && isset($key[0]) && $key[0] == '!') {
                 $key   = substr($key, 1);
                 $noKey = true;
             }
@@ -81,7 +103,7 @@ class Parser implements ParserInterface
                 'noKey'     => $noKey,
                 'alterNext' => $alterNext,
             ];
-            if (trim($match[7]) == ',') {
+            if (isset($match[7]) && is_string($match[7]) && trim($match[7]) == ',') {
                 $selectors[] = $result;
                 $result      = [];
             }
