@@ -74,11 +74,10 @@ class PagespeedImagesPlugin extends Plugin
     {
         require_once(__DIR__ . '/vendor/autoload.php');
 
-        /** @var Page $page */
 
-        $page = $this->grav['page'];
+
         // Get content and list of exclude tags
-        $content = $page->getRawContent();
+        $content = $this->grav->output;
 
         $content = $this->manipulateDataAttributes($content);
         $this->grav->output($content);
