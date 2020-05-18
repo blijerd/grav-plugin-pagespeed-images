@@ -44,8 +44,7 @@ class PagespeedImagesPlugin extends Plugin
     {
         return [
             'onPageContentProcessed' => ['onPageContentProcessed', 0],
-            'onPluginsInitialized' => ['onPluginsInitialized', 0],
-            'onImageMediumSaved' => ['onImageMediumSaved', 0]
+            'onPluginsInitialized' => ['onPluginsInitialized', 0]
         ];
     }
 
