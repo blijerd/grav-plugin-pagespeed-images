@@ -1,0 +1,34 @@
+name: Pagespeed Images
+version: 0.1.1
+testing: true
+description: "Lazy loads images for pagespeed optimization"
+icon: picture-o
+author:
+  name: Edwin Rasser
+  email: edwin@blijwin.nl
+  url: https://www.blijwin.nl
+homepage: https://github.com/blijerd/grav-plugin-pagespeedimages
+keywords: responsive, srcset
+bugs: https://github.com/blijerd/grav-plugin-pagespeedimages/issues
+license: MIT
+
+form:
+  validation: loose
+  fields:
+    enabled:
+      type: toggle
+      label: Plugin Status
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+    loadIcon:
+      type: file
+      label: Achtergrondafbeelding
+      destination: 'self@'
+      multiple: false
+      accept:
+        - image/*
