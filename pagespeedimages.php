@@ -70,16 +70,16 @@ class PagespeedImagesPlugin extends Plugin
 
 
 
-    public function onPageContentProcessed(Event $event)
+    public function onPageContentProcessed()
     {
         require_once(__DIR__ . '/vendor/autoload.php');
 
         /** @var Page $page */
 
-        $page = $event['page'];
+        $page = $this->grav['page'];
 
         $content = $this->manipulateDataAttributes($page->getRawContent());
-//        $page->setRawContent($content);
+        $page->setRawContent($content);
     }
 
     protected function manipulateDataAttributes(string $content)
