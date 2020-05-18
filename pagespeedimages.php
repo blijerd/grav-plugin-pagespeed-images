@@ -19,6 +19,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\Event\Event;
 use PHPHtmlParser\Dom;
+use WebPConvert\WebPConvert;
 
 /**
  * Adds a srcset-attribute to img-elements to allow for responsive images in Markdown
@@ -90,5 +91,20 @@ class PagespeedImagesPlugin extends Plugin
 
         $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
 
+    }
+
+
+    public function onImageMediumSaved(Event $event)
+    {
+
+        $source = $event['image'];
+
+        $target = explode(".",$source)[0] . ".webp";
+
+        $quality = 90;
+        $stripMetadata = true;
+
+// .. fire up WebP conversion
+        WebPConvert::convert($source, $target, $quality, $stripMetadata);
     }
 }
