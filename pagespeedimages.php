@@ -91,20 +91,19 @@ class PagespeedImagesPlugin extends Plugin
         }
 
         $document = new Document($content);
-        $images = $document->find('img');
+//        $images = $document->find('img');
 
-        foreach ($images as $image) {
-//            $image = $lightbox->firstInDocument('img');
-
-            if (!$image) {
-                continue;
-            }
-
-//            $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
-//            $image->setAttribute('src', '');
-
-
-        }
+//        foreach ($images as $image) {
+//
+//            if (!$image) {
+//                continue;
+//            }
+//
+////            $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
+////            $image->setAttribute('src', '');
+//
+//
+//        }
 
         return $document->html();
     }
