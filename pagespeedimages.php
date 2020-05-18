@@ -16,6 +16,7 @@ namespace Grav\Plugin;
 
 use Grav\Common\Plugin;
 use Grav\Common\Page\Page;
+use RocketTheme\Toolbox\Event\Event;
 use DiDom\Document;
 
 
