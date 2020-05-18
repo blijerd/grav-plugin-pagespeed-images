@@ -44,7 +44,8 @@ class PagespeedImagesPlugin extends Plugin
     public static function getSubscribedEvents()
     {
         return [
-            'onPluginsInitialized' => ['onPluginsInitialized', 0]
+            'onPluginsInitialized' => ['onPluginsInitialized', 0],
+            'onPageContentProcessed' => ['onPageContentProcessed', 0]
         ];
     }
 
@@ -72,28 +73,16 @@ class PagespeedImagesPlugin extends Plugin
 
     }
 
-    public function onPageInitialized()
-    {
-        require_once(__DIR__ . '/vendor/autoload.php');
-
-        /** @var Page $page */
-        $page = $this->grav['page'];
-        $config = $this->mergeConfig($page);
-        $pagespeedimages = $this->config->get('plugins.pagespeedimages.enabled');
-
-        $this->active = $config->get('active') && !$pagespeedimages;
-
-        if ($this->active) {
-            $this->enable([
-                'onPageContentProcessed' => ['onPageContentProcessed', 0]
-            ]);
-        }
-    }
 
 
 
     public function onPageContentProcessed(Event $event)
     {
+        require_once(__DIR__ . '/vendor/autoload.php');
+
+        /** @var Page $page */
+        $page = $this->grav['page'];
+
 
         $page = $event['page'];
 
