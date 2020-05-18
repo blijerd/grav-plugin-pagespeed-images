@@ -80,7 +80,7 @@ class PagespeedImagesPlugin extends Plugin
         $content = $this->grav->output;
 
         $content = $this->manipulateDataAttributes($content);
-        $this->grav->output($content);
+        $this->grav->output =$content;
     }
 
     protected function manipulateDataAttributes(string $content)
