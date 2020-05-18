@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     //         console.log('srcset webp found');
                     //     }
                     // } else {
-                    lazyImage.src = lazyImage.dataset.src;
+                    lazyImage.src = lazyImage.dataset.lazysrc;
                     console.log('loading ' + lazyImage.dataset.src);
                     if (lazyImage.dataset.srcset) {
                         lazyImage.srcset = lazyImage.dataset.srcset;
