@@ -20,8 +20,6 @@ use RocketTheme\Toolbox\Event\Event;
 use DiDom\Document;
 
 
-//use WebPConvert\WebPConvert;
-
 /**
  * Adds a srcset-attribute to img-elements to allow for responsive images in Markdown
  *
@@ -102,7 +100,7 @@ class PagespeedImagesPlugin extends Plugin
                 continue;
             }
 
-            $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
+            $image->setAttribute('data-lazysrc', 'yolo');
 //            $image->setAttribute('src', '');
 
 
