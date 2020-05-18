@@ -44,7 +44,6 @@ class PagespeedImagesPlugin extends Plugin
     public static function getSubscribedEvents()
     {
         return [
-            'onPageContentProcessed' => ['onPageContentProcessed', 0],
             'onPluginsInitialized' => ['onPluginsInitialized', 0]
         ];
     }
@@ -60,24 +59,47 @@ class PagespeedImagesPlugin extends Plugin
     {
         // Don't proceed if we are in the admin plugin
         if ($this->isAdmin()) {
+            $this->active = false;
             return;
         }
 
-        //add assets
+        $this->enable([
+            'onPageInitialized' => ['onPageInitialized', 0]
+        ]);
+
+    }
+
+    public function onPageInitialized()
+    {
+        require_once(__DIR__ . '/vendor/autoload.php');
+
+        /** @var Page $page */
+        $page = $this->grav['page'];
+        $config = $this->mergeConfig($page);
+        $pagespeedimages = $this->config->get('plugins.pagespeedimages.enabled');
+
+        $this->active = $config->get('active') && !$pagespeedimages;
+
+        if ($this->active) {
+            $this->enable([
+                'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
+                'onPageContentProcessed' => ['onPageContentProcessed', 0]
+            ]);
+        }
+    }
+
+    public function onTwigSiteVariables()
+    {
+
         $assets = $this->grav['assets'];
         // $assets->addJs('plugin://fullcalendar/assets/lib/jquery.min.js');	// geht auch ohne, da jquery bereits in system/assets
 
         $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
-
     }
 
     public function onPageContentProcessed(Event $event)
     {
-        if ($this->isAdmin()) {
-            return;
-        }
-        require_once(__DIR__ . '/vendor/autoload.php');
-        /** @var Page $page */
+
         $page = $event['page'];
 
         $content = $this->manipulateDataAttributes($page->content());
