@@ -75,8 +75,6 @@ class PagespeedImagesPlugin extends Plugin
         require_once(__DIR__ . '/vendor/autoload.php');
 
         /** @var Page $page */
-        $page = $this->grav['page'];
-
 
         $page = $event['page'];
 
@@ -103,7 +101,7 @@ class PagespeedImagesPlugin extends Plugin
         }
 
 
-        return $dom->outerHtml;
+        return $dom->__toString();
     }
 
 
