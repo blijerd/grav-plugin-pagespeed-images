@@ -78,8 +78,7 @@ class PagespeedImagesPlugin extends Plugin
 
         $page = $event['page'];
 
-        $content = $this->manipulateDataAttributes($page->content());
-        $page->shouldProcess(false);
+        $content = $this->manipulateDataAttributes($page->getRawContent());
         $page->setRawContent($content);
     }
 
