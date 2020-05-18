@@ -43,7 +43,7 @@ class PagespeedImagesPlugin extends Plugin
     {
         return [
             'onPluginsInitialized' => ['onPluginsInitialized', 0],
-            'onPageContentProcessed' => ['onPageContentProcessed', 0]
+            'onOutputGenerated' => ['onOutputGenerated', 0]
         ];
     }
 
@@ -70,16 +70,18 @@ class PagespeedImagesPlugin extends Plugin
 
 
 
-    public function onPageContentProcessed()
+    public function onOutputGenerated()
     {
         require_once(__DIR__ . '/vendor/autoload.php');
 
         /** @var Page $page */
 
         $page = $this->grav['page'];
+        // Get content and list of exclude tags
+        $content = $page->getRawContent();
 
-        $content = $this->manipulateDataAttributes($page->getRawContent());
-        $page->setRawContent("<h1>YOLO</h1>");
+        $content = $this->manipulateDataAttributes($content);
+        $this->grav->output($content);
     }
 
     protected function manipulateDataAttributes(string $content)
