@@ -90,7 +90,6 @@ class PagespeedImagesPlugin extends Plugin
         }
 
         $dom = new Document($content);
-//        $dom->load();
 
         $images = $dom->find('img');
         foreach ($images as $image) {
@@ -101,8 +100,8 @@ class PagespeedImagesPlugin extends Plugin
             $image->setAttribute('src', '');
         }
 
-
-        return $dom->html();
+return "<h1>YOlo</h1>";
+//        return $dom->html();
     }
 
 
