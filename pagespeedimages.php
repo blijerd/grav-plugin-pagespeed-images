@@ -94,17 +94,17 @@ class PagespeedImagesPlugin extends Plugin
     }
 
 
-    public function onImageMediumSaved(Event $event)
-    {
-
-        $source = $event['image'];
-
-        $target = explode(".",$source)[0] . ".webp";
-
-        $quality = 90;
-        $stripMetadata = true;
-
-// .. fire up WebP conversion
-        WebPConvert::convert($source, $target, $quality, $stripMetadata);
-    }
+//    public function onImageMediumSaved(Event $event)
+//    {
+//
+//        $source = $event['image'];
+//
+//        $target = explode(".",$source)[0] . ".webp";
+//
+//        $quality = 90;
+//        $stripMetadata = true;
+//
+//// .. fire up WebP conversion
+//        WebPConvert::convert($source, $target, $quality, $stripMetadata);
+//    }
 }
