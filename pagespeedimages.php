@@ -67,10 +67,6 @@ class PagespeedImagesPlugin extends Plugin
         $assets = $this->grav['assets'];
         $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
 
-        $this->enable([
-            'onPageInitialized' => ['onPageInitialized', 0]
-        ]);
-
     }
 
 
