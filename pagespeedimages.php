@@ -79,7 +79,7 @@ class PagespeedImagesPlugin extends Plugin
         $page = $event['page'];
 
         $content = $this->manipulateDataAttributes($page->content());
-        $page->setRawContent($content);
+//        $page->setRawContent($content);
     }
 
     protected function manipulateDataAttributes(string $content)
@@ -89,13 +89,7 @@ class PagespeedImagesPlugin extends Plugin
         }
 
         $dom = new Document();
-        $dom->load('<img src="bla.jpg">');
-
-
-
-
-
-
+        $dom->load($content);
 
         $images = $dom->find('img');
         foreach ($images as $image) {
