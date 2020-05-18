@@ -17,7 +17,7 @@ namespace Grav\Plugin;
 use Grav\Common\Plugin;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\Event\Event;
-use PHPHtmlParser\Dom;
+use DiDom\Document;
 
 
 /**
@@ -88,10 +88,10 @@ class PagespeedImagesPlugin extends Plugin
             return '';
         }
 
-        $dom = new Dom;
+        $dom = new Document();
         $dom->load($content);
-        $images  = $dom->getElementsbyTag('img');
 
+        $images = $dom->find('img');
         foreach ($images as $image) {
             if(!$image) {
                 continue;
@@ -101,7 +101,7 @@ class PagespeedImagesPlugin extends Plugin
         }
 
 
-        return $dom->__toString();
+        return $dom->html();
     }
 
 
