@@ -4,9 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit13e09e9b2c7bfe8cb02dfa7d685faf07
+class ComposerStaticInit5a05276f3f7b9f78accbf46e83ec44ac
 {
     public static $prefixLengthsPsr4 = array (
+        'P' => 
+        array (
+            'PHPHtmlParser\\' => 14,
+        ),
         'D' => 
         array (
             'DiDom\\' => 6,
@@ -14,17 +18,32 @@ class ComposerStaticInit13e09e9b2c7bfe8cb02dfa7d685faf07
     );
 
     public static $prefixDirsPsr4 = array (
+        'PHPHtmlParser\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paquettg/php-html-parser/src/PHPHtmlParser',
+        ),
         'DiDom\\' => 
         array (
             0 => __DIR__ . '/..' . '/imangazaliev/didom/src/DiDom',
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        's' => 
+        array (
+            'stringEncode' => 
+            array (
+                0 => __DIR__ . '/..' . '/paquettg/string-encode/src',
+            ),
+        ),
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit13e09e9b2c7bfe8cb02dfa7d685faf07::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit13e09e9b2c7bfe8cb02dfa7d685faf07::$prefixDirsPsr4;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5a05276f3f7b9f78accbf46e83ec44ac::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5a05276f3f7b9f78accbf46e83ec44ac::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5a05276f3f7b9f78accbf46e83ec44ac::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

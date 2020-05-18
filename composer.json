@@ -1,5 +1,6 @@
 {
-  "require": {
-    "imangazaliev/didom": "^1.14"
-  }
+
+    "require": {
+        "paquettg/php-html-parser": "^2.2"
+    }
 }
