@@ -87,9 +87,9 @@ class PagespeedImagesPlugin extends Plugin
         if (strlen($content) === 0) {
             return '';
         }
-die($content);
+
         $dom = new Document();
-        $dom->load();
+        $dom->load('<img src="bla.jpg">');
 
         $images = $dom->find('img');
         foreach ($images as $image) {
