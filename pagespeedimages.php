@@ -63,6 +63,9 @@ class PagespeedImagesPlugin extends Plugin
             return;
         }
 
+        $assets = $this->grav['assets'];
+        $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
+
         $this->enable([
             'onPageInitialized' => ['onPageInitialized', 0]
         ]);
@@ -82,20 +85,12 @@ class PagespeedImagesPlugin extends Plugin
 
         if ($this->active) {
             $this->enable([
-                'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
                 'onPageContentProcessed' => ['onPageContentProcessed', 0]
             ]);
         }
     }
 
-    public function onTwigSiteVariables()
-    {
 
-        $assets = $this->grav['assets'];
-        // $assets->addJs('plugin://fullcalendar/assets/lib/jquery.min.js');	// geht auch ohne, da jquery bereits in system/assets
-
-        $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
-    }
 
     public function onPageContentProcessed(Event $event)
     {
