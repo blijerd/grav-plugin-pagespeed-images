@@ -90,7 +90,7 @@ class PagespeedImagesPlugin extends Plugin
             return '';
         }
 
-        $document = new Document($content);
+//        $document = new Document($content);
 //        $images = $document->find('img');
 
 //        foreach ($images as $image) {
@@ -105,7 +105,7 @@ class PagespeedImagesPlugin extends Plugin
 //
 //        }
 
-        return $document->html();
+//        return $document->html();
     }
 
 
