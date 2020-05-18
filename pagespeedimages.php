@@ -101,7 +101,7 @@ class PagespeedImagesPlugin extends Plugin
             }
 
             $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
-            $image->setAttribute('src', '');
+//            $image->setAttribute('src', '');
 
 
         }
