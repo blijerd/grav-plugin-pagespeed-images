@@ -90,22 +90,22 @@ class PagespeedImagesPlugin extends Plugin
             return '';
         }
 
-//        $document = new Document($content);
+        $document = new Document($content);
 //        $images = $document->find('img');
-
+//
 //        foreach ($images as $image) {
 //
 //            if (!$image) {
 //                continue;
 //            }
 //
-////            $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
-////            $image->setAttribute('src', '');
+//            $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
+//            $image->setAttribute('src', '');
 //
 //
 //        }
 
-//        return $document->html();
+        return $document->html();
     }
 
 
