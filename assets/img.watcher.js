@@ -9,17 +9,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     if (webpSupport == true && lazyImage.dataset.srcwebp) {
                         lazyImage.src = lazyImage.dataset.srcwebp;
-                        console.log('loading ' + lazyImage.dataset.srcwebp);
+                        // console.log('loading ' + lazyImage.dataset.srcwebp);
                         if (lazyImage.dataset.srcsetwebp) {
                             lazyImage.srcset = lazyImage.dataset.srcsetwebp;
-                            console.log('srcset webp found');
+                            // console.log('srcset webp found');
                         }
                     } else {
                         lazyImage.src = lazyImage.dataset.lazysrc;
-                        console.log('loading ' + lazyImage.dataset.src);
+                        // console.log('loading ' + lazyImage.dataset.src);
                         if (lazyImage.dataset.srcset) {
                             lazyImage.srcset = lazyImage.dataset.srcset;
-                            console.log('srcset found');
+                            // console.log('srcset found');
                         }
                     }
                     lazyImageObserver.unobserve(lazyImage);
