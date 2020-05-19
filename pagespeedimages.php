@@ -96,11 +96,13 @@ class PagespeedImagesPlugin extends Plugin
             if(!$image) {
                 continue;
             }
+            if ($image->hasAttribute('class') && strstr($image->getAttribute('class'), 'nolazy')) {
+                continue;
+            }
             $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
             $image->setAttribute('src', '');
         }
 
-//return "<h1>YOlo</h1>";
         return $dom->html();
     }
 
