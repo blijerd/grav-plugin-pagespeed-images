@@ -72,6 +72,10 @@ class PagespeedImagesPlugin extends Plugin
 
     public function onOutputGenerated()
     {
+        if ($this->isAdmin()) {
+            $this->active = false;
+            return;
+        }
         require_once(__DIR__ . '/vendor/autoload.php');
 
 
