@@ -8,21 +8,21 @@ function lazyImages() {
                 if (entry.isIntersecting) {
                     let lazyImage = entry.target;
 
-                    // if (webpSupport == true && lazyImage.dataset.srcwebp) {
-                    //     lazyImage.src = lazyImage.dataset.srcwebp;
-                    //     // console.log('loading ' + lazyImage.dataset.srcwebp);
-                    //     if (lazyImage.dataset.srcsetwebp) {
-                    //         lazyImage.srcset = lazyImage.dataset.srcsetwebp;
-                    //         // console.log('srcset webp found');
-                    //     }
-                    // } else {
+                    if (webpSupport == true && lazyImage.dataset.srcwebp) {
+                        lazyImage.src = lazyImage.dataset.srcwebp;
+
+                        if (lazyImage.dataset.srcsetwebp) {
+                            lazyImage.srcset = lazyImage.dataset.srcsetwebp;
+                        }
+
+                    } else {
                         lazyImage.src = lazyImage.dataset.lazysrc;
-                    //     // console.log('loading ' + lazyImage.dataset.src);
-                    //     if (lazyImage.dataset.srcset) {
-                    //         lazyImage.srcset = lazyImage.dataset.srcset;
-                    //         // console.log('srcset found');
-                    //     }
-                    // }
+
+                        if (lazyImage.dataset.srcset) {
+                            lazyImage.srcset = lazyImage.dataset.srcset;
+
+                        }
+                    }
                     lazyImageObserver.unobserve(lazyImage);
                 }
             });
