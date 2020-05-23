@@ -3,7 +3,7 @@ function lazyImages() {
     var lazyImages = [].slice.call(document.querySelectorAll('[data-lazysrc]'));
 
     if ("IntersectionObserver" in window) {
-        let lazyImageObserver = new IntersectionObserver(function (entries, observer) {
+        lazyImageObserver = new IntersectionObserver(function (entries, observer) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     let lazyImage = entry.target;
