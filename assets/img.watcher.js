@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+// document.addEventListener("DOMContentLoaded", function () {
     var lazyImages = [].slice.call(document.querySelectorAll('[data-lazysrc]'));
 
     if ("IntersectionObserver" in window) {
@@ -31,4 +31,4 @@ document.addEventListener("DOMContentLoaded", function () {
             lazyImageObserver.observe(lazyImage);
         });
     }
-});
+// });
