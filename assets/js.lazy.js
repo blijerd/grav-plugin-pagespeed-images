@@ -7,9 +7,9 @@ function jsLazy() {
     })
 }
 document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(jsLazy, 10000);
+    setTimeout(jsLazy, 5000);
 });
-setTimeout(jsLazy, 10000);
+setTimeout(jsLazy, 5000);
 function loadScript(url){
 
     var script = document.createElement("script")
