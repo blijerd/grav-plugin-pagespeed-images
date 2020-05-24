@@ -1,7 +1,7 @@
 function jsLazy() {
     document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
         // loadJS('yourcode.js', yourCodeToBeCalled, document.body);
-        loadJS(tabEl.getAttribute('data-lazyjs'), '');
+        loadScript(tabEl.getAttribute('data-lazyjs'), '');
     })
 }
 document.addEventListener("DOMContentLoaded", function () {
