@@ -54,6 +54,7 @@ class PagespeedImagesPlugin extends Plugin
 
         $assets = $this->grav['assets'];
         $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
+        $assets->addJs('plugin://pagespeedimages/assets/js.lazy.js');
 
     }
 
@@ -74,6 +75,7 @@ class PagespeedImagesPlugin extends Plugin
         $content = $this->grav->output;
 
         $content = $this->manipulateDataAttributes($content);
+        $content = $this->lazyCaptcha($content);
         $this->grav->output =$content;
     }
 
@@ -95,6 +97,29 @@ class PagespeedImagesPlugin extends Plugin
             }
             $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
             $image->setAttribute('src', '');
+        }
+
+        return $dom->html();
+    }
+
+    protected function lazyCaptcha(string $content)
+    {
+        if (strlen($content) === 0) {
+            return '';
+        }
+
+        $dom = new Document($content);
+
+        $scripts = $dom->find('script');
+        foreach ($scripts as $script) {
+            if(!$script) {
+                continue;
+            }
+            if ($script->hasAttribute('src') && strstr($script->getAttribute('src'), 'recaptcha/api.js')) {
+                continue;
+            }
+            $script->setAttribute('data-lazyjs', $script->getAttribute('src'));
+            $script->setAttribute('src', '');
         }
 
         return $dom->html();
