@@ -47,10 +47,14 @@ class PagespeedImagesPlugin extends Plugin
     public function onPluginsInitialized()
     {
         // Don't proceed if we are in the admin plugin
+        if (!$this->config->get('plugins.pagespeedimages.enabled')) {
+            return;
+        }
         if ($this->isAdmin()) {
             $this->active = false;
             return;
         }
+
 
         $assets = $this->grav['assets'];
         $assets->addJs('plugin://pagespeedimages/assets/img.watcher.js');
@@ -63,10 +67,16 @@ class PagespeedImagesPlugin extends Plugin
 
     public function onOutputGenerated()
     {
+        if (!$this->config->get('plugins.pagespeedimages.enabled')) {
+            return;
+        }
         if ($this->isAdmin()) {
             $this->active = false;
             return;
         }
+
+
+
         require_once(__DIR__ . '/vendor/autoload.php');
 
 
