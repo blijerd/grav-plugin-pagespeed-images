@@ -1,7 +1,7 @@
 function jsLazy() {
     document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
         // loadJS('yourcode.js', yourCodeToBeCalled, document.body);
-        loadJS(tabEl.getAttribute('data-lazyjs'), document.body);
+        loadJS(tabEl.getAttribute('data-lazyjs'), '');
     })
 }
 document.addEventListener("DOMContentLoaded", function () {
@@ -9,13 +9,25 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // var loadJS = function(url, implementationCode, location){
-var loadJS = function(url, location){
-    //url is URL of external file, implementationCode is the code
-    //to be called from the file, location is the location to
-    //insert the <script> element
+function loadScript(url, callback){
 
-    var scriptTag = document.createElement('script');
-    scriptTag.src = url;
+    var script = document.createElement("script")
+    script.type = "text/javascript";
 
-    location.appendChild(scriptTag);
-};
+    if (script.readyState){  //IE
+        script.onreadystatechange = function(){
+            if (script.readyState == "loaded" ||
+                script.readyState == "complete"){
+                script.onreadystatechange = null;
+                callback();
+            }
+        };
+    } else {  //Others
+        script.onload = function(){
+            callback();
+        };
+    }
+
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+}
