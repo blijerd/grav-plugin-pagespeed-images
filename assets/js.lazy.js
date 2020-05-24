@@ -1,36 +1,30 @@
 function jsLazy() {
     document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
-        // loadJS('yourcode.js', yourCodeToBeCalled, document.body);
+
         loadUrl = tabEl.dataset.lazyjs;
-        console.log(loadUrl);
-        loadScript(loadUrl, '');
+
+        loadScript(loadUrl);
     })
 }
 document.addEventListener("DOMContentLoaded", function () {
-    jsLazy();
+    setTimeout(jsLazy, 10000);
 });
-jsLazy();
-// var loadJS = function(url, implementationCode, location){
-function loadScript(url, callback){
+setTimeout(jsLazy, 10000);
+function loadScript(url){
 
     var script = document.createElement("script")
     script.type = "text/javascript";
-console.log(script);
+
     if (script.readyState){  //IE
         script.onreadystatechange = function(){
             if (script.readyState == "loaded" ||
                 script.readyState == "complete"){
-                script.onreadystatechange = null;
-                callback();
+                console.log('script loaded');
             }
-        };
-    } else {  //Others
-        script.onload = function(){
-            callback();
         };
     }
 
     script.src = url;
-    console.log(url);
+
     document.getElementsByTagName("head")[0].appendChild(script);
 }
