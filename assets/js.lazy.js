@@ -9,7 +9,7 @@ function jsLazy() {
 document.addEventListener("DOMContentLoaded", function () {
     jsLazy();
 });
-
+jsLazy();
 // var loadJS = function(url, implementationCode, location){
 function loadScript(url, callback){
 
