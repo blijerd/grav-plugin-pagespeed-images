@@ -116,10 +116,10 @@ class PagespeedImagesPlugin extends Plugin
                 continue;
             }
             if ($script->hasAttribute('src') && strstr($script->getAttribute('src'), 'recaptcha/api.js')) {
-                continue;
+                $script->setAttribute('data-lazyjs', $script->getAttribute('src'));
+                $script->setAttribute('src', '');
             }
-            $script->setAttribute('data-lazyjs', $script->getAttribute('src'));
-            $script->setAttribute('src', '');
+
         }
 
         return $dom->html();
