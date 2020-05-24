@@ -1,15 +1,15 @@
 <?php
 /**
- * ImgSrcset Plugin
+ * Pagespeed Images Plugin
  *
  * PHP version 7
  *
  * @category   Extensions
  * @package    Grav
- * @subpackage ImgSrcset
- * @author     Ole Vik <git@olevik.net>
+ * @subpackage Zapierwebhook
+ * @author     Edwin Rasser <edwin@blijwin.nl>
  * @license    http://www.opensource.org/licenses/mit-license.html MIT License
- * @link       https://github.com/OleVik/grav-plugin-imgsrcset
+ * @link       https://github.com/blijerd/grav-plugin-pagespeedimages
  */
 
 namespace Grav\Plugin;
@@ -20,17 +20,7 @@ use RocketTheme\Toolbox\Event\Event;
 use DiDom\Document;
 
 
-/**
- * Adds a srcset-attribute to img-elements to allow for responsive images in Markdown
- *
- * Class ImgSrcsetPlugin
- *
- * @category Extensions
- * @package  Grav\Plugin
- * @author   Ole Vik <git@olevik.net>
- * @license  http://www.opensource.org/licenses/mit-license.html MIT License
- * @link     https://github.com/OleVik/grav-plugin-imgsrcset
- */
+
 class PagespeedImagesPlugin extends Plugin
 {
 
