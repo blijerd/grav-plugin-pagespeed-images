@@ -96,9 +96,10 @@ class PagespeedImagesPlugin extends Plugin
         }
 
         $dom = new Document($content);
-
+$i = 0;
         $images = $dom->find('img');
         foreach ($images as $image) {
+            $i++;
             if(!$image) {
                 continue;
             }
@@ -108,8 +109,11 @@ class PagespeedImagesPlugin extends Plugin
             $image->setAttribute('data-lazysrc', $image->getAttribute('src'));
             $image->setAttribute('src', '');
         }
-
+if($i != 0) {
         return $dom->html();
+} else {
+    return $content;
+}
     }
 
     protected function lazyCaptcha(string $content)
@@ -119,9 +123,10 @@ class PagespeedImagesPlugin extends Plugin
         }
 
         $dom = new Document($content);
-
+$i =0;
         $scripts = $dom->find('script');
         foreach ($scripts as $script) {
+            $i++;
             if(!$script) {
                 continue;
             }
@@ -131,8 +136,11 @@ class PagespeedImagesPlugin extends Plugin
             }
 
         }
-
-        return $dom->html();
+        if($i != 0) {
+            return $dom->html();
+        } else {
+            return $content;
+        }
     }
 
 

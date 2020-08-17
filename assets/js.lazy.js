@@ -19,7 +19,6 @@ function loadScript(url){
         script.onreadystatechange = function(){
             if (script.readyState == "loaded" ||
                 script.readyState == "complete"){
-                console.log('script loaded');
             }
         };
     }
