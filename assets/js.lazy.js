@@ -1,6 +1,8 @@
 jsLazyLoaded = false;
 function jsLazy() {
     if(jsLazyLoaded == false) {
+        console.log("Load lazyjs");
+
         jsLazyLoaded = true;
         document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
 
@@ -12,6 +14,7 @@ function jsLazy() {
 }
 document.addEventListener("DOMContentLoaded", function () {
     inputs = document.getElementsByTagName('input');
+    console.log("Add listeners");
     for(i=0;i<inputs.length;i++) {
         inputs[i].addEventListener("focus", jsLazy);
     }
