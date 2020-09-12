@@ -11,7 +11,12 @@ function jsLazy() {
     }
 }
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementsByTagName('input').addEventListener("focus", jsLazy);
+    inputs = document.getElementsByTagName('input');
+    for(i=0;i<inputs.length;i++) {
+        inputs[i].addEventListener("focus", jsLazy);
+    }
+
+
 });
 
 function loadScript(url){
