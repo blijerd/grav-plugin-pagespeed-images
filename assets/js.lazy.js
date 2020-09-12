@@ -14,7 +14,7 @@ function jsLazy() {
     }
 }
 console.log("Add listeners to");
-document.addEventListener("DOMContentLoaded", function () {
+// document.addEventListener("DOMContentLoaded", function () {
     lazyInputs = document.getElementsByTagName('input');
     console.log("Add listeners");
     for(i=0;i<lazyInputs.length;i++) {
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-});
+// });
 
 function loadScript(url){
 
