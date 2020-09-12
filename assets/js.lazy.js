@@ -1,15 +1,19 @@
+jsLazyLoaded = false;
 function jsLazy() {
-    document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
+    if(jsLazyLoaded == false) {
+        jsLazyLoaded = true;
+        document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
 
-        loadUrl = tabEl.dataset.lazyjs;
+            loadUrl = tabEl.dataset.lazyjs;
 
-        loadScript(loadUrl);
-    })
+            loadScript(loadUrl);
+        })
+    }
 }
 document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(jsLazy, 5000);
+    document.getElementsByTagName('input').addEventListener("focus", jsLazy);
 });
-setTimeout(jsLazy, 5000);
+
 function loadScript(url){
 
     var script = document.createElement("script")
