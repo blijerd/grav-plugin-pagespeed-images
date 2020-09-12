@@ -1,4 +1,5 @@
-jsLazyLoaded = false;
+var jsLazyLoaded = false;
+var lazyInputs = false;
 function jsLazy() {
     if(jsLazyLoaded == false) {
         console.log("Load lazyjs");
@@ -12,11 +13,12 @@ function jsLazy() {
         })
     }
 }
+console.log("Add listeners to");
 document.addEventListener("DOMContentLoaded", function () {
-    inputs = document.getElementsByTagName('input');
+    lazyInputs = document.getElementsByTagName('input');
     console.log("Add listeners");
-    for(i=0;i<inputs.length;i++) {
-        inputs[i].addEventListener("focus", jsLazy);
+    for(i=0;i<lazyInputs.length;i++) {
+        lazyInputs[i].addEventListener("focus", jsLazy);
     }
 
 
