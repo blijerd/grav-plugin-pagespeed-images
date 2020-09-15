@@ -17,8 +17,8 @@ console.log("Add listeners to");
 // document.addEventListener("DOMContentLoaded", function () {
     lazyInputs = document.getElementsByTagName('input');
     console.log("Add listeners");
-    for(i=0;i<lazyInputs.length;i++) {
-        lazyInputs[i].addEventListener("focus", jsLazy);
+    for(ix=0;ix<lazyInputs.length;ix++) {
+        lazyInputs[ix].addEventListener("focus", jsLazy);
     }
 
 
