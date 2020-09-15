@@ -1,5 +1,4 @@
 function lazyImages() {
-    console.log('init lazy');
     var lazyImages = [].slice.call(document.querySelectorAll('[data-lazysrc]'));
 
     if ("IntersectionObserver" in window) {
