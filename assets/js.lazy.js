@@ -4,7 +4,7 @@ function jsLazy() {
     // alert("lazy function");
     if(jsLazyLoaded == false) {
         console.log("Load lazyjs");
-alert("false");
+// alert("false");
         jsLazyLoaded = true;
         document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
 
@@ -16,7 +16,7 @@ alert("false");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // alert("loaded");
+    alert("loaded");
     // console.log("Add listeners to");
     lazyInputs = document.getElementsByTagName('input');
     // console.log("Add listeners");
