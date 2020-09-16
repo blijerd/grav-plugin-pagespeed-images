@@ -1,9 +1,10 @@
 var jsLazyLoaded = false;
 var lazyInputs = false;
 function jsLazy() {
+    alert("lazy function");
     if(jsLazyLoaded == false) {
         console.log("Load lazyjs");
-
+alert("false");
         jsLazyLoaded = true;
         document.querySelectorAll('[data-lazyjs]').forEach(function (tabEl) {
 
@@ -15,6 +16,7 @@ function jsLazy() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    alert("loaded");
     // console.log("Add listeners to");
     lazyInputs = document.getElementsByTagName('input');
     // console.log("Add listeners");
@@ -24,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function loadScript(url){
-
+alert("Loadscript");
     var script = document.createElement("script")
     script.type = "text/javascript";
 
